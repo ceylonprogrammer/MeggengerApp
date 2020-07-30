@@ -6,18 +6,25 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toolbar
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
+        setSupportActionBar(findViewById(R.id.toolbar_main))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+        val toolbar:androidx.appcompat.widget.Toolbar=findViewById(R.id.toolbar_main)
+        setSupportActionBar(toolbar)
+        supportActionBar!!.title=""
+
+        val tabLayout:TabLayout=findViewById(R.id.tab_layout)
+        val viewPager:ViewPager=findViewById(R.id.view_pager)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
