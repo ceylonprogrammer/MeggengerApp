@@ -1,11 +1,25 @@
 package com.example.messengerapp.Fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.messengerapp.AdapterClasses.UserAdapter
+import com.example.messengerapp.ModelClasses.Users
 import com.example.messengerapp.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.fragment_search.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -18,7 +32,12 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
+    private var userAdapter: UserAdapter? = null
+    private var mUsers: List<Users>? = null
+    private var recyclerView: RecyclerView? = null
+    private var searchEditText:EditText?=null
+
+
     private var param1: String? = null
     private var param2: String? = null
 
@@ -35,8 +54,95 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+        val view: View = inflater.inflate(R.layout.fragment_search, container, false)
+
+        recyclerView = view.findViewById(R.id.searchList)
+        recyclerView!!.setHasFixedSize(true)
+        recyclerView!!.layoutManager = LinearLayoutManager(context)
+
+        searchEditText=view.findViewById(R.id.searchUsersET)
+
+
+        mUsers = ArrayList()
+        retriveAllUsers()
+
+        searchEditText!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(cs: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                searchForUsers(cs.toString().toLowerCase())
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
+
+        return view
+
+
     }
+
+    private fun retriveAllUsers() {
+        val firebaseUserID = FirebaseAuth.getInstance().currentUser!!.uid
+        //retrieve all the users from firebase
+        val refUsers = FirebaseDatabase.getInstance().reference.child("Users")
+        refUsers.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                (mUsers as ArrayList<Users>).clear()
+                if (searchEditText!!.text.toString()=="")
+                {
+                    for (snapshot in p0.children) {
+                        var user: Users? = snapshot.getValue(Users::class.java)
+                        if (!(user!!.getUID()).equals(firebaseUserID)) {
+                            (mUsers as ArrayList<Users>).add(user)
+                        }
+                    }
+                    userAdapter = UserAdapter(context!!, mUsers!!, false)
+
+                    recyclerView!!.adapter=userAdapter
+                }
+
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+
+
+    }
+
+
+    private fun searchForUsers(str: String) {
+        val firebaseUserID = FirebaseAuth.getInstance().currentUser!!.uid
+
+        val queryUsers = FirebaseDatabase.getInstance().reference.child("Users")
+            .child("Users").orderByChild("search")
+            .startAt(str)
+            .endAt(str + "\uf8ff")
+
+        queryUsers.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                (mUsers as ArrayList<Users>).clear()
+                for (snapshot in p0.children) {
+                    var user: Users? = snapshot.getValue(Users::class.java)
+                    if (!(user!!.getUID()).equals(firebaseUserID)) {
+                        (mUsers as ArrayList<Users>).add(user)
+                    }
+                }
+                userAdapter = UserAdapter(context!!, mUsers!!, false)
+                recyclerView!!.adapter=userAdapter
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
 
     companion object {
         /**

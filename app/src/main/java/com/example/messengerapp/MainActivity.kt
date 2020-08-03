@@ -55,16 +55,14 @@ class MainActivity : AppCompatActivity() {
         tabLayout.setupWithViewPager(viewPager)
 
 
-
         //Display username and Profile picture
-        refUsers!!.addValueEventListener(object :ValueEventListener{
+        refUsers!!.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
-if (p0.exists())
-{
-var user:Users?=p0.getValue(Users::class.java)
-    user_name.text=user!!.getUserName()
-    Picasso.get().load(user.getProfile()).into(profile_image)
-}
+                if (p0.exists()) {
+                    var user: Users? = p0.getValue(Users::class.java)
+                    user_name.text = user!!.getUserName()
+                    Picasso.get().load(user.getProfile()).into(profile_image)
+                }
             }
 
             override fun onCancelled(p0: DatabaseError) {
