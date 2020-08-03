@@ -15,7 +15,7 @@ import androidx.viewpager.widget.ViewPager
 import com.example.messengerapp.Fragments.ChatFragment
 import com.example.messengerapp.Fragments.SearchFragment
 import com.example.messengerapp.Fragments.SettingsFragment
-import com.example.messengerapp.ModelClasses.Users
+
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -25,8 +25,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    var refUsers: DatabaseReference? = null
-    var firebaseUser: FirebaseUser? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +34,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar_main))
 
 
-        firebaseUser = FirebaseAuth.getInstance().currentUser
-        refUsers = FirebaseDatabase.getInstance().reference.child("Users").child(firebaseUser!!.uid)
 
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_main)
         setSupportActionBar(toolbar)
@@ -54,24 +51,11 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = viewPagerAdapter
         tabLayout.setupWithViewPager(viewPager)
 
-        //Display username and profile picture
-        refUsers!!.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(p0: DataSnapshot) {
-                if (p0.exists()) {
-                    val user: Users? = p0.getValue(Users::class.java)
-                    Picasso.get().load(user?.getProfile()).into(profile_image)
-
-                    user_name.text = user!!.getUserName()
-                }
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-        }
 
 
-        )
+
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

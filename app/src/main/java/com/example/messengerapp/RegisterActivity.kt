@@ -56,7 +56,7 @@ class RegisterActivity : AppCompatActivity() {
             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     firebaseUserID = mAuth.currentUser!!.uid
-                    refUsers = FirebaseDatabase.getInstance().reference.child("users")
+                    refUsers = FirebaseDatabase.getInstance().reference.child("Users")
                         .child(firebaseUserID)
 
                     val userHashMap=HashMap<String,Any>()
